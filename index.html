@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>FAVIO - Favicon Generator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="theme-color" content="#0e0f13" />
+<link rel="apple-touch-icon" sizes="180x180" href="./favicons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicons/favicon-16x16.png">
+<link rel="manifest" href="./favicons/site.webmanifest">
+<link rel="mask-icon" href="./favicons/safari-pinned-tab.svg" color="#56d364">
+<meta name="msapplication-TileColor" content="#0e0f13">
+<meta name="theme-color" content="#0e0f13">
+<style>
+:root {
+  --bg: #0e0f13;
+  --panel: #151822;
+  --text: #e6e6e6;
+  --muted: #a0a4b8;
+  --accent: #56d364;
+  --danger: #ff6b6b;
+  --warn: #f7b500;
+  --border: #222536;
+  --radius: 10px;
+  --focus: 0 0 0 2px #56d36455;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+}
+* { box-sizing: border-box; }
+html,body { margin:0; padding:0; background:var(--bg); color:var(--text); }
+body { min-height:100vh; display:flex; flex-direction:column; }
+header { padding:1.2rem 1.6rem; display:flex; align-items:center; gap:.9rem; flex-wrap:wrap; }
+header h1 { margin:0; font-size:1.25rem; font-weight:600; letter-spacing:.5px; }
+header small { color:var(--muted); }
+main { width:100%; max-width:1150px; margin:0 auto; padding:1rem 1.25rem 3rem; flex:1; }
+#dropZone { border:2px dashed var(--border); border-radius:var(--radius); padding:3.5rem 1.5rem; text-align:center; background:linear-gradient(145deg,#141924,#10141e); position:relative; transition:.25s border-color,.25s background; cursor:pointer; }
+#dropZone.drag { border-color:var(--accent); background:#18202e; }
+#dropZone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+#dropZone .hint { font-size:.95rem; color:var(--muted); }
+#dropZone .hint strong { color:var(--accent); font-weight:600; }
+section { margin-top:2rem; }
+.panel { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.25rem; position:relative; }
+.panel h2 { margin:.1rem 0 1rem; font-size:1rem; font-weight:600; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); }
+.flex { display:flex; gap:1rem; flex-wrap:wrap; }
+.preview-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); }
+.icon-preview { background:#0f1219; border:1px solid var(--border); border-radius:8px; padding:.75rem .5rem .9rem; text-align:center; position:relative; font-size:.7rem; letter-spacing:.5px; display:flex; flex-direction:column; gap:.5rem; min-height:140px; }
+.icon-preview canvas, .icon-preview img { margin:0 auto; image-rendering:pixelated; }
+.icon-preview span { color:var(--muted); font-size:.65rem; }
+#htmlSnippet { width:100%; min-height:140px; resize:vertical; background:#0f1219; color:var(--text); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; border:1px solid var(--border); border-radius:6px; padding:.75rem .85rem; line-height:1.35; font-size:.75rem; }
+button { --btn-bg:#1d2330; --btn-border:var(--border); --btn-color:var(--text); background:var(--btn-bg); color:var(--btn-color); border:1px solid var(--btn-border); border-radius:7px; font:600 .8rem system-ui,-apple-system,Segoe UI,Roboto,sans-serif; padding:.65rem .95rem; cursor:pointer; display:inline-flex; align-items:center; gap:.45rem; letter-spacing:.3px; transition:.18s background, .18s border-color, .18s transform; }
+button:hover { background:#232b3b; }
+button:active { transform:translateY(1px); }
+button.accent { --btn-bg:linear-gradient(160deg,#2b8851,#2d9b55,#2b8851); --btn-border:#26914f; --btn-color:#fff; }
+button.accent:hover { filter:brightness(1.07); }
+button.danger { --btn-bg:#441f24; --btn-border:#5d2027; --btn-color:#ffb5bb; }
+button.danger:hover { background:#54242b; }
+button:focus-visible { outline:none; box-shadow:var(--focus); }
+.inline-field { display:flex; flex-wrap:wrap; gap:.6rem 1.25rem; align-items:center; margin:0 0 .75rem; }
+label.path { font-size:.7rem; font-weight:600; letter-spacing:.5px; color:var(--muted); text-transform:uppercase; }
+input[type=text].path-input { width:100%; max-width:320px; background:#0f1219; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:.55rem .7rem; font-size:.75rem; font-family:inherit; letter-spacing:.5px; }
+input[type=text].path-input:focus-visible { outline:none; box-shadow:var(--focus); border-color:var(--accent); }
+.actions { display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1rem; }
+small.help { color:var(--muted); display:block; margin-top:.35rem; font-size:.65rem; letter-spacing:.5px; }
+footer { padding:1.25rem 1rem 2rem; text-align:center; font-size:.65rem; color:var(--muted); }
+.badge { background:#1d2330; color:var(--muted); font-size:.55rem; padding:.25rem .4rem; border-radius:4px; border:1px solid var(--border); }
+progress { width:180px; height:6px; border-radius:4px; overflow:hidden; background:#1a1f29; border:1px solid var(--border); }
+progress::-webkit-progress-bar { background:#1a1f29; }
+progress::-webkit-progress-value { background:var(--accent); transition:width .2s; }
+progress::-moz-progress-bar { background:var(--accent); }
+#toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:#202736; color:var(--text); padding:.65rem 1rem; border:1px solid var(--border); border-radius:8px; opacity:0; pointer-events:none; font-size:.75rem; display:flex; gap:.6rem; align-items:center; transition:.4s opacity,.4s transform; box-shadow:0 4px 24px -4px #000a; }
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+code.inline { font-family:ui-monospace,monospace; background:#1d2330; padding:.2rem .4rem; border-radius:4px; font-size:.65rem; }
+@media (max-width:700px) { #dropZone { padding:2.75rem 1rem; } .icon-preview { min-height:132px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>FAVIO</h1>
+  <small>A single-file favicon generator</small>
+  <span class="badge" title="All local, no upload">Offline</span>
+</header>
+<main>
+  <div id="dropZone" aria-label="Drop an image here or click to choose" tabindex="0">
+    <input type="file" accept="image/*" aria-hidden="true" />
+    <h2 style="margin:0 0 .75rem; font-size:1.05rem; font-weight:600;">Drop image / Click to load</h2>
+    <p class="hint">PNG / JPG / WEBP / SVG (rasterized) – ideally square & ≥ 512px.</p>
+    <p class="hint" style="margin-top:1.15rem;">The image stays <strong>local</strong>; nothing is uploaded.</p>
+  </div>
+
+  <section id="previews" style="display:none;">
+    <div class="panel">
+      <h2>Generated Sizes</h2>
+      <div class="preview-grid" id="previewGrid" aria-live="polite"></div>
+      <div class="actions">
+        <button class="accent" id="downloadZipBtn" disabled>Download ZIP</button>
+        <button id="copyHtmlBtn" disabled>Copy HTML Snippet</button>
+        <button class="danger" id="resetBtn">Reset</button>
+        <progress id="progress" max="100" value="0" hidden></progress>
+      </div>
+      <small class="help">Icons are generated with high-quality canvas scaling & premultiplied alpha. The <code class="inline">favicon.ico</code> contains 16, 32, 48 px layers.</small>
+    </div>
+  </section>
+
+  <section id="htmlSection" style="display:none;">
+    <div class="panel">
+      <h2>HTML Snippet</h2>
+        <div class="inline-field" id="basePathWrap" style="display:none;">
+          <label for="basePathInput" class="path">Base Path</label>
+    <input id="basePathInput" class="path-input" type="text" value="/" placeholder="favicons/ or /favicons/" aria-label="Base path for favicon files" />
+    <small class="help" style="flex-basis:100%; margin-top:-.35rem;">Use a relative path (<code class="inline">favicons/</code>) or root-based (<code class="inline">/favicons/</code>). Leave <code class="inline">/</code> for site root. ZIP includes this folder when not root.</small>
+        </div>
+<textarea id="htmlSnippet" readonly spellcheck="false" aria-label="HTML snippet"></textarea>
+      <small class="help">Paste into your site's <code class="inline">&lt;head&gt;</code>. You can adjust paths if not at site root.</small>
+    </div>
+  </section>
+</main>
+<footer>&copy; <span id="year"></span> FAVIO. All generation done in-browser. No tracking, no network calls.</footer>
+<div id="toast" role="status" aria-live="polite"><span id="toastMsg"></span></div>
+<script>
+(function() {
+  'use strict';
+  const SIZES = [16,32,48,180,192,512]; // Core sizes; more can be added if needed
+  const EXTRA = [150, 256, 384]; // optional extras
+  const ICO_SIZES = [16,32,48];
+  const ALL_SIZES = [...new Set([...SIZES, ...EXTRA])].sort((a,b)=>a-b);
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = dropZone.querySelector('input');
+  const previewGrid = document.getElementById('previewGrid');
+  const previewsSection = document.getElementById('previews');
+  const htmlSection = document.getElementById('htmlSection');
+  const htmlSnippet = document.getElementById('htmlSnippet');
+  const downloadZipBtn = document.getElementById('downloadZipBtn');
+  const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const progressEl = document.getElementById('progress');
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  const yearSpan = document.getElementById('year');
+  const basePathInput = document.getElementById('basePathInput');
+  const basePathWrap = document.getElementById('basePathWrap');
+  yearSpan.textContent = new Date().getFullYear();
+
+  let currentBasePath = '/';
+
+  function normalizeBasePath(p, { final = false } = {}) {
+    if (p == null) p = '';
+    p = p.trim();
+    if (!p) return final ? '/' : '';
+    // If a full URL, reduce to pathname
+    try { if (/^https?:\/\//i.test(p)) { const u = new URL(p); p = u.pathname; } } catch(e) {}
+    // collapse duplicate slashes BUT keep leading slash intent if present
+    p = p.replace(/\/{2,}/g, '/');
+    if (final) {
+      if (!p.endsWith('/')) p += '/';
+      if (p === '//') p = '/';
+    }
+    return p;
+  }
+
+  function showToast(msg, time=2600) {
+    toastMsg.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), time);
+  }
+
+  function readFile(file) {
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(fr.result);
+      fr.onerror = rej;
+      fr.readAsDataURL(file);
+    });
+  }
+
+  function loadImage(src) {
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => res(img);
+      img.onerror = rej;
+      // Disallow tainted canvas by ensuring same-origin for dataURI only
+      img.crossOrigin = 'anonymous';
+      img.src = src;
+    });
+  }
+
+  function createCanvas(w,h) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h; return c;
+  }
+
+  function drawScaled(img, size) {
+    const c = createCanvas(size,size);
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,size,size);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    // Fit (cover) inside square while preserving aspect ratio
+    const scale = Math.min(img.width, img.height);
+    const sx = (img.width - scale)/2;
+    const sy = (img.height - scale)/2;
+    ctx.drawImage(img, sx, sy, scale, scale, 0, 0, size, size);
+    return c;
+  }
+
+  function canvasToPNGBlob(canvas) {
+    return new Promise(res => canvas.toBlob(b=>res(b), 'image/png'));
+  }
+
+  // CRC32 for ZIP (uncompressed store method)
+  const CRC_TABLE = (()=>{ let t=[]; for(let i=0;i<256;i++){ let c=i; for(let k=0;k<8;k++) c = (c&1)? (0xEDB88320^(c>>>1)) : (c>>>1); t[i]=c>>>0; } return t; })();
+  function crc32(buf) { let crc=~0; for(let i=0;i<buf.length;i++) crc = CRC_TABLE[(crc^buf[i]) & 0xFF] ^ (crc>>>8); return (~crc)>>>0; }
+
+  function dosDateTime(d=new Date()) {
+    const time = (d.getHours()<<11) | (d.getMinutes()<<5) | (d.getSeconds()/2|0);
+    const date = ((d.getFullYear()-1980)<<9) | ((d.getMonth()+1)<<5) | d.getDate();
+    return {time,date};
+  }
+
+  function strToBytes(str) { return new TextEncoder().encode(str); }
+
+  function buildZip(files) {
+    // files: [{name, data:Uint8Array}]
+    const localParts = [];
+    const centralParts = [];
+    let offset = 0;
+    const {time,date} = dosDateTime();
+    files.forEach(file => {
+      const nameBytes = strToBytes(file.name);
+      const data = file.data;
+      const crc = crc32(data);
+      const local = [];
+      const push32 = (arr,v)=>{ arr.push(v & 0xFF, (v>>>8)&0xFF, (v>>>16)&0xFF, (v>>>24)&0xFF); };
+      const push16 = (arr,v)=>{ arr.push(v & 0xFF, (v>>>8)&0xFF); };
+      // Local file header
+      local.push(0x50,0x4b,0x03,0x04); // signature
+      push16(local,20); // version needed
+      push16(local,0); // flags
+      push16(local,0); // compression 0 = store
+      push16(local,time); // time
+      push16(local,date); // date
+      push32(local,crc);
+      push32(local,data.length);
+      push32(local,data.length);
+      push16(local,nameBytes.length);
+      push16(local,0); // extra
+      localParts.push(new Uint8Array(local));
+      localParts.push(nameBytes);
+      localParts.push(data);
+
+      // Central directory header
+      const central = [];
+      central.push(0x50,0x4b,0x01,0x02); // signature
+      push16(central,20); // version made
+      push16(central,20); // version needed
+      push16(central,0); // flags
+      push16(central,0); // method
+      push16(central,time);
+      push16(central,date);
+      push32(central,crc);
+      push32(central,data.length);
+      push32(central,data.length);
+      push16(central,nameBytes.length);
+      push16(central,0); // extra
+      push16(central,0); // comment
+      push16(central,0); // disk start
+      push16(central,0); // int attrs
+      push32(central,0); // ext attrs
+      push32(central,offset);
+      centralParts.push(new Uint8Array(central));
+      centralParts.push(nameBytes);
+
+      offset += local.length + nameBytes.length + data.length;
+    });
+
+    const centralSize = centralParts.reduce((a,b)=>a+b.length,0);
+    const centralOffset = offset;
+    const end = [];
+    const push32=(arr,v)=>{ arr.push(v & 0xFF,(v>>>8)&0xFF,(v>>>16)&0xFF,(v>>>24)&0xFF); };
+    const push16=(arr,v)=>{ arr.push(v & 0xFF,(v>>>8)&0xFF); };
+    end.push(0x50,0x4b,0x05,0x06); // EOCD
+    push16(end,0); // disk
+    push16(end,0); // start disk
+    push16(end,files.length);
+    push16(end,files.length);
+    push32(end,centralSize);
+    push32(end,centralOffset);
+    push16(end,0); // comment length
+
+    const totalLength = offset + centralSize + end.length;
+    const out = new Uint8Array(totalLength);
+    let pointer=0;
+    [...localParts, ...centralParts, new Uint8Array(end)].forEach(part=>{ out.set(part,pointer); pointer+=part.length; });
+    return new Blob([out], {type:'application/zip'});
+  }
+
+  async function blobToUint8Array(blob) {
+    const buf = await blob.arrayBuffer();
+    return new Uint8Array(buf);
+  }
+
+  async function generateICO(canvases) {
+    // canvases: [{size, canvas}] sizes in ICO_SIZES
+    // Build ICO with PNG images as data blocks
+    const images = [];
+    for (const {size, canvas} of canvases) {
+      const blob = await new Promise(r=>canvas.toBlob(r,'image/png'));
+      const data = new Uint8Array(await blob.arrayBuffer());
+      images.push({size, data});
+    }
+    const num = images.length;
+    const header = new Uint8Array(6);
+    header[0]=0; header[1]=0; // reserved
+    header[2]=1; header[3]=0; // type 1 = icon
+    header[4]=num; header[5]=0; // count
+    const dirEntries = new Uint8Array(16*num);
+    let offset = 6 + dirEntries.length; // start of first image
+    images.forEach((img,i)=>{
+      const size = img.size;
+      const idx = i*16;
+      dirEntries[idx+0] = size===256?0:size; // width
+      dirEntries[idx+1] = size===256?0:size; // height
+      dirEntries[idx+2] = 0; // color count
+      dirEntries[idx+3] = 0; // reserved
+      dirEntries[idx+4] = 1; dirEntries[idx+5] = 0; // planes
+      dirEntries[idx+6] = 32; dirEntries[idx+7] = 0; // bit count
+      const len = img.data.length;
+      dirEntries[idx+8] = len & 0xFF;
+      dirEntries[idx+9] = (len>>>8)&0xFF;
+      dirEntries[idx+10] = (len>>>16)&0xFF;
+      dirEntries[idx+11] = (len>>>24)&0xFF;
+      dirEntries[idx+12] = offset & 0xFF;
+      dirEntries[idx+13] = (offset>>>8)&0xFF;
+      dirEntries[idx+14] = (offset>>>16)&0xFF;
+      dirEntries[idx+15] = (offset>>>24)&0xFF;
+      offset += len;
+    });
+    const total = offset;
+    const out = new Uint8Array(total);
+    out.set(header,0);
+    out.set(dirEntries,6);
+    offset = 6 + dirEntries.length;
+    images.forEach(img=>{ out.set(img.data,offset); offset+=img.data.length; });
+    return new Blob([out], {type:'image/x-icon'});
+  }
+
+  function buildHTMLSnippet(basePath='/', themeColor='#0e0f13') {
+  basePath = normalizeBasePath(basePath, { final: true });
+    return [
+      `<link rel="apple-touch-icon" sizes="180x180" href="${basePath}apple-touch-icon.png">`,
+      `<link rel="icon" type="image/png" sizes="32x32" href="${basePath}favicon-32x32.png">`,
+      `<link rel="icon" type="image/png" sizes="16x16" href="${basePath}favicon-16x16.png">`,
+      `<link rel="manifest" href="${basePath}site.webmanifest">`,
+      `<link rel="mask-icon" href="${basePath}safari-pinned-tab.svg" color="#56d364">`,
+      `<meta name="msapplication-TileColor" content="${themeColor}">`,
+      `<meta name="theme-color" content="${themeColor}">`
+    ].join('\n');
+  }
+
+  function buildManifest() {
+    const icons = [
+      { src: 'android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { src: 'android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }
+    ];
+    return JSON.stringify({
+      name: 'App',
+      short_name: 'App',
+      icons,
+      theme_color: '#0e0f13',
+      background_color: '#0e0f13',
+      display: 'standalone'
+    }, null, 2);
+  }
+
+  async function handleImage(img, originalName='image') {
+    previewGrid.innerHTML='';
+    previewsSection.style.display='block';
+    htmlSection.style.display='block';
+    basePathWrap.style.display='flex';
+    progressEl.hidden=false; progressEl.value=0;
+
+    const results = [];
+    const icoCanvases = [];
+
+    for (let i=0;i<ALL_SIZES.length;i++) {
+      const size = ALL_SIZES[i];
+      progressEl.value = (i/ALL_SIZES.length)*55; // partial progress
+      const canvas = drawScaled(img,size);
+      const blob = await canvasToPNGBlob(canvas);
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      const filenameMap = {
+        16: 'favicon-16x16.png',
+        32: 'favicon-32x32.png',
+        48: 'favicon-48x48.png',
+        150:'mstile-150x150.png',
+        180:'apple-touch-icon.png',
+        192:'android-chrome-192x192.png',
+        256:'icon-256x256.png',
+        384:'icon-384x384.png',
+        512:'android-chrome-512x512.png'
+      };
+      const name = filenameMap[size] || `icon-${size}x${size}.png`;
+      results.push({name, data:bytes, blob});
+      if (ICO_SIZES.includes(size)) icoCanvases.push({size, canvas});
+      // Preview
+      const wrap = document.createElement('div');
+      wrap.className='icon-preview';
+      const label = document.createElement('div'); label.textContent = size+'x'+size; label.style.fontSize='.7rem';
+      wrap.appendChild(label);
+      const imgEl = document.createElement('img');
+      imgEl.width = size>96?96:size; imgEl.height=imgEl.width; // limit display
+      imgEl.alt = size+'x'+size+' preview';
+      imgEl.src = URL.createObjectURL(blob);
+      wrap.appendChild(imgEl);
+      const meta = document.createElement('span'); meta.textContent = name; wrap.appendChild(meta);
+      previewGrid.appendChild(wrap);
+    }
+
+    progressEl.value = 60;
+
+    // Generate favicon.ico
+    const icoBlob = await generateICO(icoCanvases);
+    const icoBytes = new Uint8Array(await icoBlob.arrayBuffer());
+    results.push({name:'favicon.ico', data:icoBytes, blob:icoBlob});
+
+    progressEl.value = 70;
+
+    // Add manifest
+    const manifestStr = buildManifest();
+    results.push({name:'site.webmanifest', data:strToBytes(manifestStr)});
+
+    // Provide a simple mask-icon (monochrome SVG) derived bounding box
+    const maskSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" ry="22" fill="currentColor"/></svg>`;
+    results.push({name:'safari-pinned-tab.svg', data:strToBytes(maskSVG)});
+
+    progressEl.value = 80;
+
+    // Build HTML snippet
+  htmlSnippet.value = buildHTMLSnippet(currentBasePath);
+    copyHtmlBtn.disabled=false;
+
+    downloadZipBtn.disabled=false;
+
+    downloadZipBtn.onclick = async () => {
+      downloadZipBtn.disabled=true; downloadZipBtn.textContent='Building...';
+      progressEl.hidden=false; progressEl.value=85;
+      // Apply folder prefix inside ZIP if base path not root
+  const normalized = normalizeBasePath(currentBasePath, { final: true });
+  let zipPath = normalized === '/' ? '' : normalized; // may or may not start with slash
+  // ZIP entries should not start with leading slash
+  zipPath = zipPath.replace(/^\/+/, '');
+  const prefix = zipPath; // already has trailing slash (final normalization)
+  const zipFiles = prefix ? results.map(f => ({ name: prefix + f.name, data: f.data })) : results;
+      const zipBlob = buildZip(zipFiles);
+      progressEl.value=95;
+      const a = document.createElement('a');
+      a.download = 'favicons.zip';
+      a.href = URL.createObjectURL(zipBlob);
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+      progressEl.value=100;
+      downloadZipBtn.textContent='Download ZIP';
+      downloadZipBtn.disabled=false;
+      showToast('ZIP downloaded');
+    };
+
+    copyHtmlBtn.onclick = async () => {
+      try { await navigator.clipboard.writeText(htmlSnippet.value); showToast('HTML snippet copied'); } catch(e) { showToast('Copy failed'); }
+    };
+
+    resetBtn.onclick = () => { reset(); };
+
+    progressEl.value=100; setTimeout(()=>progressEl.hidden=true, 800);
+    showToast('Icons generated');
+  }
+
+  function reset() {
+    previewGrid.innerHTML='';
+    htmlSnippet.value='';
+    previewsSection.style.display='none';
+    htmlSection.style.display='none';
+  basePathWrap.style.display='none';
+    downloadZipBtn.disabled=true;
+    copyHtmlBtn.disabled=true;
+    progressEl.hidden=true; progressEl.value=0;
+  currentBasePath = '/';
+  basePathInput.value = '/';
+  }
+
+  async function handleFiles(files) {
+    if (!files || !files.length) return;
+    const file = files[0];
+    if (!file.type.startsWith('image/')) { showToast('Not an image'); return; }
+    try {
+      const dataUrl = await readFile(file);
+      const img = await loadImage(dataUrl);
+      await handleImage(img, file.name);
+    } catch(e) { console.error(e); showToast('Failed to process image'); }
+  }
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+  dropZone.addEventListener('dragleave', e => { dropZone.classList.remove('drag'); });
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag'); handleFiles(e.dataTransfer.files); });
+  fileInput.addEventListener('change', e => handleFiles(fileInput.files));
+
+  dropZone.addEventListener('keydown', e => { if (e.key==='Enter' || e.key===' ') { fileInput.click(); e.preventDefault(); } });
+
+  // Paste image support
+  window.addEventListener('paste', e => {
+    if (e.clipboardData) {
+      const items = e.clipboardData.files;
+      if (items && items.length) handleFiles(items);
+    }
+  });
+
+  basePathInput.addEventListener('input', () => {
+    const raw = basePathInput.value;
+    const normalized = normalizeBasePath(raw, { final: false });
+    currentBasePath = normalized || '/';
+    if (raw !== normalized) basePathInput.value = normalized; // reflect collapse of duplicate slashes only
+    if (htmlSnippet.value) htmlSnippet.value = buildHTMLSnippet(currentBasePath);
+  });
+
+  basePathInput.addEventListener('blur', () => {
+    currentBasePath = normalizeBasePath(basePathInput.value, { final: true });
+    basePathInput.value = currentBasePath;
+    if (htmlSnippet.value) htmlSnippet.value = buildHTMLSnippet(currentBasePath);
+  });
+})();
+</script>
+</body>
+</html>
