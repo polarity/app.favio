@@ -1,6 +1,6 @@
 FAVIO
 =====
-Zero‑dependency, single‑file favicon generator. Drop or paste an image → get a full favicon pack + ready‑to‑paste HTML snippet — all offline.
+Zero‑dependency, single‑file favicon generator. Drop or paste an image → get a full favicon pack + ready‑to‑paste HTML snippet... all offline. Demo: [https://polarity.productions/favio/](https://polarity.productions/favio/)
 
 ## Features
 - Drag & drop, paste, or file select an image (PNG / JPG / WEBP / SVG*).  
